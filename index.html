@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title> Legal Godown  | Stock Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <style>.login-screen{min-height:100vh;display:grid;place-items:center;background:#123f35;padding:20px}.login-card{width:min(410px,100%);background:#fff;border-radius:12px;padding:34px;box-shadow:0 25px 80px #061e1850}.login-card .brand{color:#123f35;padding:0 0 28px}.login-card h1{font-size:25px;margin-bottom:7px}.login-card p{color:#72807b;font-size:12px;margin:0 0 25px}.login-card label{display:block;color:#72807b;font-size:10px;font-weight:700;margin:14px 0}.login-card input,.login-card select{display:block;width:100%;margin-top:7px;padding:12px;border:1px solid #dce5df;border-radius:6px;font:12px 'DM Sans'}.login-card button{width:100%;margin-top:12px}.login-error{color:#d65d53;font-size:11px;min-height:15px;margin-top:10px}.logout-button{border:1px solid var(--line);background:white;border-radius:6px;padding:8px 10px;color:var(--muted);font:600 10px 'DM Sans';cursor:pointer}.logout-button:hover{color:var(--red);border-color:var(--red)}.row-actions{display:inline-flex;gap:5px;margin-left:8px}.row-action{border:1px solid var(--line);background:white;color:var(--muted);border-radius:5px;padding:4px 7px;font:600 9px 'DM Sans';cursor:pointer}.row-action:hover{color:var(--green);border-color:var(--green)}.row-action.delete:hover{color:var(--red);border-color:var(--red)}.audit-change{font-size:10px;line-height:1.55;color:var(--muted)}.hidden{display:none!important}</style>
+</head>
+<body>
+  <section class="login-screen" id="login-screen"><div class="login-card"><div class="brand"><div class="brand-mark">G</div><div><strong>GODOWN</strong><span>STOCK CONTROL</span></div></div><h1>Welcome back</h1><p>Sign in to manage your single godown inventory.</p><form id="login-form"><label>Role<select id="login-role"><option value="admin">Admin / Owner</option><option value="staff">Entry Staff</option></select></label><label>Username<input id="login-username" required placeholder="Enter username" /></label><label>Password<input id="login-password" required type="password" placeholder="Enter password" /></label><div class="login-error" id="login-error"></div><button class="primary-button" type="submit">Sign in <span>→</span></button></form></div></section>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">G</div><div><strong>Legal Hardware </strong><span>STOCK CONTROL</span></div></div>
+      <div class="workspace-label">WORKSPACE</div>
+      <nav>
+        <button class="nav-item active" data-view="overview"><span>⌂</span>Overview</button>
+        <button class="nav-item" data-view="inventory"><span>▦</span>Inventory</button>
+        <button class="nav-item" data-view="activity"><span>↕</span>Activity log</button>
+        <button class="nav-item" data-view="reports"><span>▤</span>Reports</button>
+      </nav>
+        <div class="sidebar-bottom"><div class="sync-dot"><i></i><span>Local data synced</span></div><div class="user-mini"><div class="avatar" id="sidebar-avatar">OW</div><div><b id="sidebar-role">Owner</b><small>Current access</small></div><span>•••</span></div></div>
+    </aside>
+    <main class="main-content">
+      <header class="topbar"><div><div class="crumb"> Legal Godown / <span id="crumb-view">OVERVIEW</span></div><h1 id="page-title">Good morning <span>✦</span></h1></div><div class="top-actions"><button class="icon-button" title="Notifications">♢<b class="notification-dot"></b></button><button class="profile-button"><span class="avatar" id="user-avatar">OW</span><span id="user-name">Owner</span><span>⌄</span></button><button class="logout-button" id="logout-button">Log out</button></div></header>
+      <div id="view-container"></div>
+    </main>
+  </div>
+  <div id="modal" class="modal hidden"><div class="modal-card"><button class="modal-close" id="close-modal">×</button><div class="modal-kicker" id="modal-kicker">NEW TRANSACTION</div><h2 id="modal-title">Add stock movement</h2><form id="movement-form"><label>Movement type<select id="movement-type"><option value="in">Stock in</option><option value="out">Stock out</option></select></label><label>Product<select id="product-select"></select></label><div class="form-grid"><label>Quantity (pieces)<input id="quantity" type="number" min="1" required placeholder="e.g. 50" /></label><label>Party / reference<input id="reference" placeholder="e.g. Supplier name" /></label></div><label>Notes<textarea id="notes" rows="3" placeholder="Optional note"></textarea></label><div class="form-footer"><span class="whatsapp-hint">◉ WhatsApp alert ready</span><button class="primary-button" type="submit">Save movement <span>→</span></button></div></form></div></div>
+  <div id="product-modal" class="modal hidden"><div class="modal-card"><button class="modal-close" id="close-product-modal">×</button><div class="modal-kicker">PRODUCT MASTER</div><h2 id="product-modal-title">Add your product</h2><form id="product-form"><div class="form-grid"><label>Product name<input id="new-name" required placeholder="e.g. Premium Aldrop" /></label><label>Category<input id="new-category" required placeholder="e.g. Aldrop" /></label></div><div class="form-grid"><label>Product code<input id="new-code" placeholder="e.g. ALD-04-ANT" /></label><label>Size / finish<input id="new-variant" required placeholder="e.g. 4 inch · Antique" /></label></div><div class="form-grid"><label>Opening pieces<input id="new-stock" type="number" min="0" required placeholder="e.g. 250" /></label><label>Price per piece<input id="new-price" type="number" min="0" step="0.01" placeholder="e.g. 245" /></label></div><div class="form-grid"><label>Low-stock alert at<input id="new-min" type="number" min="0" value="20" required /></label><label>&nbsp;</label></div><div class="form-footer"><span class="whatsapp-hint">Set once, update anytime</span><button class="primary-button" id="product-submit" type="submit">Add product <span>→</span></button></div></form></div></div>
+  <div id="delete-modal" class="modal hidden"><div class="modal-card"><button class="modal-close" id="close-delete-modal">×</button><div class="modal-kicker" style="color:var(--red)">DELETE PRODUCT</div><h2>Remove this product?</h2><p id="delete-product-description" style="color:var(--muted);font-size:12px;line-height:1.6"></p><div class="form-footer"><span class="whatsapp-hint" style="color:var(--red)">This cannot be undone</span><button class="primary-button" id="confirm-delete" type="button" style="background:var(--red)">Delete product</button></div></div></div>
+  <input id="excel-import" type="file" accept=".xlsx,.xls,.csv" hidden />
+  <script src="app.js"></script>
+</body>
+</html>
