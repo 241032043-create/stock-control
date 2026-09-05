@@ -7,7 +7,7 @@ import {
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyD83hRkMstvjphAIepqftadZhM19MkGJ0',
+  apiKey: 'AIzaSyDcvkL-0b_t1KB1VXaLFsRdPudM4Drq9no',
   authDomain: 'legal-stock-control.firebaseapp.com',
   projectId: 'legal-stock-control',
   storageBucket: 'legal-stock-control.firebasestorage.app',
