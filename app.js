@@ -6,6 +6,7 @@ const stockLog = (message, details) => console.info(`[stock] ${message}`, detail
 window.addEventListener('error',event=>console.error('[stock] runtime error',event.error||event.message));
 window.addEventListener('unhandledrejection',event=>console.error('[stock] unhandled promise rejection',event.reason));
 document.querySelector('#excel-import').addEventListener('change',()=>{products=products.map(product=>({...product,name:String(product?.name||''),category:String(product?.category||'Uncategorized'),code:String(product?.code||''),variant:String(product?.variant||'Standard')}));stockLog('Normalized inventory before Excel import',{products:products.length})},true);
+document.addEventListener('keydown',event=>{if(typeof event.key!=='string')Object.defineProperty(event,'key',{value:''})},true);
 
 const categoryStockSummary = (list=products) => {const totals={};list.forEach(product=>{const category=product.category||'Uncategorized';totals[category]=(totals[category]||0)+(Number(product.stock)||0)});return `<div class="category-stock-summary"><div class="category-summary-title">Category-wise stock</div><div class="category-summary-grid">${Object.entries(totals).sort((a,b)=>a[0].localeCompare(b[0])).map(([category,total])=>`<div class="category-summary-item"><span>${category}</span><strong>${total.toLocaleString()} pcs</strong></div>`).join('')||'<div class="empty">No category stock available</div>'}</div></div>`;};
 const originalInventoryForCategorySummary=inventory;
