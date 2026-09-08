@@ -1,5 +1,8 @@
 /* Readability overrides */
-body .overview-category-summary-inner .category-summary-item span{justify-items:center;text-align:center;flex:1}
+body .overview-category-summary-inner .category-summary-item{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px}
+body .overview-category-summary-inner .category-summary-name{text-align:left}
+body .overview-category-summary-inner .category-summary-pieces{text-align:center}
+body .overview-category-summary-inner .category-summary-item strong{text-align:right}
 body .overview-category-summary-inner .category-summary-item small{color:#176d58;font-weight:700}
 body .activity-item time,body .sales-day-row span,body .net-change-selected-date{color:#176d58}
 body input[type="date"]{color:#176d58;font-weight:600}
