@@ -2,7 +2,7 @@ import { getApps, initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const timezone = 'Asia/Kolkata';
-const money = value => `${Math.round(Number(value) || 0).toLocaleString('en-IN')}/-`;
+const money = value => `₹${Math.round(Number(value) || 0).toLocaleString('en-IN')}`;
 const number = value => (Number(value) || 0).toLocaleString('en-IN');
 
 const getReportDate = () => {
@@ -41,30 +41,67 @@ export const buildReport = (state, reportDate) => {
   const openingPieces = closingPieces - stockInPieces + salesPieces;
   const openingValue = closingValue - stockInValue + salesValue;
   const categories = {};
-  const addCategory = (movement, key) => {
+  products.forEach(product => {
+    const category = product.category || 'Uncategorized';
+    categories[category] ??= { stockValue: 0, saleValue: 0 };
+    categories[category].stockValue += (Number(product.stock) || 0) * (Number(product.price) || 0);
+  });
+  sales.forEach(movement => {
     const category = movement.category || 'Uncategorized';
-    categories[category] ??= { inPieces: 0, salePieces: 0, inValue: 0, saleValue: 0 };
-    categories[category][`${key}Pieces`] += quantity(movement);
-    categories[category][`${key}Value`] += movementValue(movement);
-  };
-  stockIn.forEach(movement => addCategory(movement, 'in'));
-  sales.forEach(movement => addCategory(movement, 'sale'));
-  const categoryLines = Object.entries(categories).sort(([a], [b]) => a.localeCompare(b)).map(([category, data]) => (
-    `${category.padEnd(18, ' ')}${money(data.inValue).padStart(14, ' ')}${money(data.saleValue).padStart(14, ' ')}`
-  ));
+    categories[category] ??= { stockValue: 0, saleValue: 0 };
+    categories[category].saleValue += movementValue(movement);
+  });
+  const categoryLines = Object.entries(categories).sort(([a], [b]) => a.localeCompare(b)).map(([category, data]) => [
+    category,
+    `Stock: ${money(data.stockValue)}`,
+    `Sale: ${money(data.saleValue)}`,
+  ].join('\n'));
+  const formattedDate = new Date(`${reportDate}T00:00:00`).toLocaleDateString('en-IN', {
+    timeZone: timezone,
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
   return [
-    'CURRENT STOCK',
-    `${money(openingValue)} + ${money(stockInValue)}`,
-    `= ${money(closingValue)}`,
+    '📊 DAILY STOCK SUMMARY',
     '',
-    `+ ${money(stockInValue)}  TODAY'S STOCK`,
-    `${money(salesValue)}  TODAY'S SALE`,
+    `📅 Date: ${formattedDate}`,
     '',
-    'CATEGORY              STOCK          SALE',
+    '━━━━━━━━━━━━━━━━━━',
+    '',
+    '💰 STOCK SUMMARY',
+    '',
+    `Opening Stock: ${money(openingValue)}`,
+    `➕ Stock In Today: ${money(stockInValue)}`,
+    `➖ Sale Today: ${money(salesValue)}`,
+    '',
+    `📦 Closing Stock: ${money(closingValue)}`,
+    '',
+    '━━━━━━━━━━━━━━━━━━',
+    '',
+    '📋 CATEGORY-WISE',
+    '',
     ...(categoryLines.length ? categoryLines : ['No stock-in or sale recorded today.']),
     '',
-    `TOTAL                 ${money(stockInValue).padStart(14, ' ')}${money(salesValue).padStart(14, ' ')}`,
-    `Pieces: stock in ${number(stockInPieces)} | sale ${number(salesPieces)} | current ${number(closingPieces)}`,
+    '━━━━━━━━━━━━━━━━━━',
+    '',
+    '💵 TOTAL',
+    '',
+    `Closing Stock: ${money(closingValue)}`,
+    `Total Sale Today: ${money(salesValue)}`,
+    '',
+    '━━━━━━━━━━━━━━━━━━',
+    '',
+    '📦 PIECES SUMMARY',
+    '',
+    `Opening: ${number(openingPieces)} pcs`,
+    `Stock In: ${number(stockInPieces)} pcs`,
+    `Sale: ${number(salesPieces)} pcs`,
+    '',
+    `Closing: ${number(closingPieces)} pcs`,
+    '',
+    '━━━━━━━━━━━━━━━━━━',
+    '✅ END OF DAY STOCK SUMMARY',
   ].join('\n');
 };
 
