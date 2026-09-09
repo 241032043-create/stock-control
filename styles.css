@@ -3,7 +3,7 @@ body .overview-category-summary-inner .category-summary-item{display:grid;grid-t
 body .overview-category-summary-inner .category-summary-name{text-align:left}
 body .overview-category-summary-inner .category-summary-pieces{text-align:center}
 body .overview-category-summary-inner .category-summary-item strong{text-align:right}
-body .overview-category-summary-inner .category-summary-item small{color:#176d58;font-weight:700}
+body .category-summary-item small{color:#176d58;font-weight:700}
 body .activity-item time,body .sales-day-row span,body .net-change-selected-date{color:#176d58}
 body input[type="date"]{color:#176d58;font-weight:600}
 body .sales-custom-dates label,body .net-change-date{color:#176d58}
