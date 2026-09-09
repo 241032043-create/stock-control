@@ -5,6 +5,9 @@ body .overview-category-summary-inner .category-summary-pieces{text-align:center
 body .overview-category-summary-inner .category-summary-item strong{text-align:right}
 body .category-summary-item small{color:#176d58;font-weight:700}
 body .activity-item time,body .sales-day-row span,body .net-change-selected-date{color:#176d58}
+body .activity-item b{font-size:12px;font-weight:700}
+body .activity-item p{font-size:11px;line-height:1.45}
+body .activity-item time{font-size:10px;font-weight:700;line-height:1.25}
 body input[type="date"]{color:#176d58;font-weight:600}
 body .sales-custom-dates label,body .net-change-date{color:#176d58}
 .crumb{cursor:pointer}.home-back{width:clamp(30px,8vw,34px);height:clamp(30px,8vw,34px);border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--green);font:600 clamp(18px,5vw,23px)/1 'DM Sans';padding:0;cursor:pointer;flex:0 0 auto;display:none;place-items:center}.home-back:hover{color:var(--orange);border-color:var(--orange)}.home-back[hidden]{display:none}
