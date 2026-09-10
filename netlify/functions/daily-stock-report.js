@@ -40,22 +40,6 @@ export const buildReport = (state, reportDate) => {
   const closingValue = products.reduce((total, product) => total + (Number(product.stock) || 0) * (Number(product.price) || 0), 0);
   const openingPieces = closingPieces - stockInPieces + salesPieces;
   const openingValue = closingValue - stockInValue + salesValue;
-  const categories = {};
-  products.forEach(product => {
-    const category = product.category || 'Uncategorized';
-    categories[category] ??= { stockValue: 0, saleValue: 0 };
-    categories[category].stockValue += (Number(product.stock) || 0) * (Number(product.price) || 0);
-  });
-  sales.forEach(movement => {
-    const category = movement.category || 'Uncategorized';
-    categories[category] ??= { stockValue: 0, saleValue: 0 };
-    categories[category].saleValue += movementValue(movement);
-  });
-  const categoryLines = Object.entries(categories).sort(([a], [b]) => a.localeCompare(b)).map(([category, data]) => [
-    category,
-    `Stock: ${money(data.stockValue)}`,
-    `Sale: ${money(data.saleValue)}`,
-  ].join('\n'));
   const formattedDate = new Date(`${reportDate}T00:00:00`).toLocaleDateString('en-IN', {
     timeZone: timezone,
     day: 'numeric',
@@ -74,21 +58,9 @@ export const buildReport = (state, reportDate) => {
     `Opening Stock: ${money(openingValue)}`,
     `➕ Stock In Today: ${money(stockInValue)}`,
     `➖ Sale Today: ${money(salesValue)}`,
+    `= Net Change Today: ${money(stockInValue - salesValue)}`,
     '',
     `📦 Closing Stock: ${money(closingValue)}`,
-    '',
-    '━━━━━━━━━━━━━━━━━━',
-    '',
-    '📋 CATEGORY-WISE',
-    '',
-    ...(categoryLines.length ? categoryLines : ['No stock-in or sale recorded today.']),
-    '',
-    '━━━━━━━━━━━━━━━━━━',
-    '',
-    '💵 TOTAL',
-    '',
-    `Closing Stock: ${money(closingValue)}`,
-    `Total Sale Today: ${money(salesValue)}`,
     '',
     '━━━━━━━━━━━━━━━━━━',
     '',
@@ -97,6 +69,7 @@ export const buildReport = (state, reportDate) => {
     `Opening: ${number(openingPieces)} pcs`,
     `Stock In: ${number(stockInPieces)} pcs`,
     `Sale: ${number(salesPieces)} pcs`,
+    `= Net Change Today: ${number(stockInPieces - salesPieces)} pcs`,
     '',
     `Closing: ${number(closingPieces)} pcs`,
     '',
