@@ -9,15 +9,18 @@ export default async request => {
     const chatId = process.env.TELEGRAM_CHAT_ID;
     if (!token || !chatId) return Response.json({ error: 'Telegram is not configured' }, { status: 503 });
 
-    const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text }),
-    });
-
-    const result = await telegramResponse.json();
-    if (!telegramResponse.ok) return Response.json({ error: result.description || 'Telegram request failed' }, { status: 502 });
-    return Response.json({ sent: true, configured: true });
+    const chunks = [];
+    for (let offset = 0; offset < String(text).length; offset += 3900) chunks.push(String(text).slice(offset, offset + 3900));
+    for (const chunk of chunks) {
+      const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: chunk }),
+      });
+      const result = await telegramResponse.json().catch(() => ({}));
+      if (!telegramResponse.ok || result.ok === false) return Response.json({ sent: false, error: result.description || 'Telegram request failed' }, { status: 502 });
+    }
+    return Response.json({ sent: true, configured: true, parts: chunks.length });
   } catch (error) {
     return Response.json({ error: error.message || 'Invalid request' }, { status: 400 });
   }
