@@ -10,7 +10,8 @@ const storageDir = join(root, 'storage');
 mkdirSync(storageDir, { recursive: true });
 const dataFile = join(storageDir, 'data.json');
 const sessions = new Map();
-const users = { admin: { password: 'admin123', role: 'admin' }, staff: { password: 'staff123', role: 'staff' } };
+const sentTelegramKeys = new Set();
+const users = { admin: { password: 'Garvit@legal', role: 'admin' }, staff: { password: 'staff123', role: 'staff' } };
 const telegramToken = process.env.TELEGRAM_BOT_TOKEN || '';
 const telegramChatId = process.env.TELEGRAM_CHAT_ID || '';
 const emptyData = { products: [], movements: [], priceHistory: [], whatsapp: { enabled: false, phone: '' } };
@@ -28,7 +29,7 @@ const server = createServer(async (req, res) => {
   try {
     if (req.method === 'GET' && req.url === '/api/health') return json(res, 200, { ok: true, serverTime: new Date().toISOString() });
     if (req.method === 'POST' && req.url === '/api/login') { const input = await body(req), user = users[input.username]; if (!user || user.password !== input.password || user.role !== input.role) return json(res, 401, { error: 'Invalid credentials' }); const token = crypto.randomUUID(); sessions.set(token, { username: input.username, role: user.role }); return json(res, 200, { token, role: user.role }); }
-    if (req.method === 'POST' && req.url === '/api/telegram/notify') { const input = await body(req); if (!input.text) return json(res, 400, { error: 'Notification text is required' }); const result = await sendTelegram(input.text); return json(res, result.sent ? 200 : 503, result); }
+    if (req.method === 'POST' && req.url === '/api/telegram/notify') { const input = await body(req); if (!input.text) return json(res, 400, { error: 'Notification text is required' }); if (input.idempotencyKey && sentTelegramKeys.has(input.idempotencyKey)) return json(res, 200, { sent: true, duplicate: true, configured: Boolean(telegramToken && telegramChatId) }); const result = await sendTelegram(input.text); if (result.sent && input.idempotencyKey) sentTelegramKeys.add(input.idempotencyKey); return json(res, result.sent ? 200 : 503, result); }
     const session = auth(req); if (!session) return json(res, 401, { error: 'Authentication required' });
     const data = readData();
     if (req.method === 'GET' && req.url === '/api/products') return json(res, 200, data.products);
